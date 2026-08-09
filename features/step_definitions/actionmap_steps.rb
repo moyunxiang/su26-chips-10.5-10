@@ -35,7 +35,11 @@ Then /I click the county "(.*)"/i do |county_name|
 end
 
 Then /I click the county with FIPS Code "(.*)"/i do |fips_code|
-  # Same as above, you might find this helpful.
+  expect(page).to have_css("path[data-county-fips-code='#{fips_code}']")
+  state_symbol = page.find_by_id('actionmap-info-container', visible: false)['data-state'].then do |state|
+    JSON.parse(state)['symbol']
+  end
+  visit county_path(state_symbol: state_symbol, std_fips_code: fips_code)
 end
 
 Then /I should see (\d+) (?:states|counties)/i do |count|
