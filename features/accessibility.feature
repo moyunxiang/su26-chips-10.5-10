@@ -39,10 +39,13 @@ Scenario: The county map page
     Given I am on the county map page for "CA" and FIPS code "001"
     Then the page should be axe clean
 
-## CS169: Add the third page here.
-# @a11y
-# Scenario: ...
+@a11y
+Scenario: The bills search page
+    Given I am on the bills page
+    Then the page should be axe clean
 
-## CS169: Add the fourth page here.
-# @a11y
-# Scenario: ...
+@a11y
+Scenario: A saved bill page
+    Given a bill has been saved
+    And I am on the saved bill page
+    Then the page should be axe clean

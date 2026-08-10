@@ -1,0 +1,19 @@
+.container.mt-4
+  = link_to '← Back to bills', bills_path, class: 'btn btn-link px-0'
+  %h1= @bill.title.presence || @bill.display_number
+
+  %dl.row
+    %dt.col-sm-3 Bill
+    %dd.col-sm-9= @bill.display_number
+    %dt.col-sm-3 Congress
+    %dd.col-sm-9= @bill.congress
+    %dt.col-sm-3 Type
+    %dd.col-sm-9= Bill.label_for(@bill.type)
+    %dt.col-sm-3 Chamber
+    %dd.col-sm-9= @bill.original_chamber
+
+  %h2.h4.mt-4 Summary
+  - if @bill.summary.present?
+    %p= @bill.summary
+  - else
+    %p.text-muted No summary was available for this bill.

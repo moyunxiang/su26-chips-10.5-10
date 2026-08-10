@@ -16,7 +16,27 @@ class BillsController < ApplicationController
       return
     end
 
+    if congress_api_key.blank?
+      @error = 'Bill search is temporarily unavailable (no congress.gov API key configured).'
+      return
+    end
+
     perform_search
+  end
+
+  def show
+    @bill = Bill.find(params[:id])
+  end
+
+  def create
+    attrs = bill_params
+    attrs[:summary] = fetch_summary(attrs)
+    @bill = Bill.new(attrs)
+    if @bill.save
+      redirect_to bill_path(@bill), notice: 'Bill was successfully saved.'
+    else
+      redirect_to bills_path, alert: 'Could not save the bill.'
+    end
   end
 
   private
@@ -40,10 +60,32 @@ class BillsController < ApplicationController
     end
   end
 
+  # Fetches the latest summary text for a bill from congress.gov. Returns nil if
+  # the bill is under-specified or the API is unavailable, so a save still works.
+  def fetch_summary(attrs)
+    return nil unless summary_fetchable?(attrs)
+
+    response = congress_client.get("/bill/#{attrs[:congress]}/#{attrs[:type]}/#{attrs[:number]}/summaries")
+    summaries = response['summaries'] || []
+    summaries.last&.dig('text')
+  rescue Congress::APIError
+    nil
+  end
+
+  def summary_fetchable?(attrs)
+    attrs[:congress].present? && attrs[:type].present? &&
+      attrs[:number].present? && congress_api_key.present?
+  end
+
+  def bill_params
+    params.require(:bill).permit(:title, :congress, :number, :type, :original_chamber)
+  end
+
+  def congress_api_key
+    ENV.fetch('CONGRESS_GOV_API_KEY') { Rails.application.credentials.congress_gov_api_key }
+  end
+
   def congress_client
-    api_key = ENV.fetch('CONGRESS_GOV_API_KEY') do
-      Rails.application.credentials.congress_gov_api_key
-    end
-    Congress::API.new(api_key)
+    Congress::API.new(congress_api_key)
   end
 end
