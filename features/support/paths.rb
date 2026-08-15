@@ -27,6 +27,9 @@ module NavigationHelpers
     when /^the county map page for "(\w\w)" and FIPS code "(\d+)"$/
       "/state/#{$1}/county/#{$2}"
 
+    when /^the saved bill page$/
+      bill_path(Bill.first)
+
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #

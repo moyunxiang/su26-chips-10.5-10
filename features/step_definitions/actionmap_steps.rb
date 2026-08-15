@@ -4,6 +4,11 @@
 
 # These steps here are scaffolds, which might be useful.
 
+Given('a bill has been saved') do
+  Bill.create!(title: 'A Test Bill', congress: 118, number: 123, type: 'hr',
+               original_chamber: 'House', summary: 'A summary of the bill for accessibility testing.')
+end
+
 Given /^I am logged in via (github|google|developer) as (".*")/i do |provider, _data|
   # This is just a start. You may want to setup Omniauth differently.
   # Look up Omniauth.test_mode
