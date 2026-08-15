@@ -22,9 +22,13 @@ if State.none?
   end
 end
 
-# Ensure we only run these seeds in the development environment.
-if Rails.env.development?
+# Seed the demo representatives, news, and events in development and in
+# production, so the live Render demo has data to show (states/counties above
+# are always seeded). Each news item is tagged with an Issue (Task 2.1) by
+# cycling through the fixed list, so the Issue column is populated for the demo.
+if Rails.env.development? || Rails.env.production?
   Representative.destroy_all
+  issue_cycle = NewsItem.issues.cycle
   SeedData.representatives.each do |rep|
     rep_model = Representative.find_or_create_by(name: rep[:name])
     rep[:news_items].each do |news_item|
@@ -33,7 +37,9 @@ if Rails.env.development?
         title:          news_item[:title],
         description:    news_item[:description],
         link:           news_item[:link]
-      )
+      ) do |item|
+        item.issue = issue_cycle.next
+      end
     end
   end
 
